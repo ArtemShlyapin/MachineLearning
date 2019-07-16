@@ -2,11 +2,10 @@ import cv2
 import numpy as np
 import os
 
-X = None
-Y = np.array([])
-W = np.ones((65536, 1))
+
+W = np.zeros((65536, 1))
 b = 1
-path = '/home/artem/ML/Lesson_1/logloss_1'
+
 
 def read_files(X, Y, path, ans):
     files = os.listdir(path)
@@ -19,11 +18,6 @@ def read_files(X, Y, path, ans):
             X = vect if (X is None) else np.vstack((X, vect)) 
             Y = np.append(Y, ans)
     return X, Y
-
-X, Y = read_files(X, Y, path, 1)
-
-print(Y)
-print(X)
 
 def sigmoid(p):
     nz = np.array([])
@@ -60,9 +54,9 @@ def propagate(W, b, X, Y):
     for i, a in enumerate(A):
         #print("J")
         J += (-Y[i]*np.log(a) - (1.0 - Y[i])*np.log(1.0 - a)) / 42.0
-        print('a = ', a)
-        print('1.0 - a = ', 1.0 - a)
-    print(J)
+        #print('a = ', a)
+        #print('1.0 - a = ', 1.0 - a)
+    #print(J)
     '''
     for e, i in enumerate(X):
         #print("dw")
@@ -115,11 +109,11 @@ def optimize(W, b, X, Y, num_iterations, l_l, print_cost = False):
         ### END CODE HERE ###
         
         # Record the costs
-        if i % 1 == 0:
+        if i % 10 == 0:
             costs.append(cost)
         
         # Print the cost every 100 training iterations
-        if print_cost and i % 1 == 0:
+        if print_cost and i % 10 == 0:
             print ("Cost after iteration %i: %f" %(i, cost))
     
     params = {"w": W,
@@ -135,9 +129,11 @@ def predict(W, b, X):
     m = X.shape[1]
     Y_pred = np.zeros((1, m))
     W = W.reshape(X.shape[0], 1)
-
     
-    A = sigmoid()
+
+    WX = np.dot(X, W)
+    WX += b
+    A = sigmoid(WX)
     
     for i in range(A.shape[1]):
         if A[i] > 0.7:
@@ -147,4 +143,24 @@ def predict(W, b, X):
     
     return Y_predict
 
-optimize(W, b, X, Y, 10, 0.01, True)
+
+X = None
+Y = np.array([])
+path = '/home/artem/ML/Lesson_1/logloss_1'
+X, Y = read_files(X, Y, path, 1)
+
+optimize(W, b, X, Y, 100, 0.01, True)
+
+X = None
+Y = np.array([])
+path = '/home/artem/ML/Lesson_1/logloss_0'
+X, Y = read_files(X, Y, path, 0)
+
+optimize(W, b, X, Y, 100, 0.01, True)
+
+X = None
+Y = np.array([])
+path = '/home/artem/ML/Lesson_1/exp'
+X, Y = read_files(X, Y, path, 1)
+
+print(predict(W, b, X))
